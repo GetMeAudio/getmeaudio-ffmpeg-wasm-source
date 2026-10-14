@@ -1,0 +1,68 @@
+name: Build LGPL ffmpeg-core (wasm)
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag to publish (e.g. ffmpeg-core-lgpl-0.12.10-1). Leave empty to build only."
+        required: false
+  push:
+    tags:
+      - "ffmpeg-core-lgpl-*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build ffmpeg-core (single-threaded, ESM + UMD)
+        run: |
+          docker buildx build \
+            --build-arg FFMPEG_ST=yes \
+            --build-arg "EXTRA_CFLAGS=-O3 -msimd128" \
+            --progress=plain \
+            -o ./out .
+          ls -l out/dist/esm out/dist/umd
+
+      - name: Verify LGPL-only
+        run: |
+          ./scripts/verify-lgpl.sh out/dist/esm/ffmpeg-core.wasm
+          ./scripts/verify-lgpl.sh out/dist/umd/ffmpeg-core.wasm
+
+      - name: Collect corresponding source and checksums
+        run: |
+          mkdir -p release
+          cp out/dist/esm/ffmpeg-core.js   release/ffmpeg-core.js
+          cp out/dist/esm/ffmpeg-core.wasm release/ffmpeg-core.wasm
+          cp out/dist/umd/ffmpeg-core.js   release/ffmpeg-core.umd.js
+          cp out/dist/umd/ffmpeg-core.wasm release/ffmpeg-core.umd.wasm
+          FF=$(grep -oP 'FFMPEG_COMMIT=\K[0-9a-f]{40}' Dockerfile)
+          LAME=$(grep -oP 'LAME_COMMIT=\K[0-9a-f]{40}' Dockerfile)
+          curl -fsSL "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/$FF" -o "release/ffmpeg-n5.1.4-$FF.tar.gz"
+          curl -fsSL "https://codeload.github.com/ffmpegwasm/lame/tar.gz/$LAME" -o "release/lame-$LAME.tar.gz"
+          # This repo (recipe + ffmpeg.wasm bindings/fftools) is the third source component.
+          git archive --format=tar.gz -o "release/getmeaudio-ffmpeg-wasm-source-${GITHUB_SHA}.tar.gz" HEAD
+          (cd release && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-core-lgpl
+          path: release/*
+
+      - name: Publish release
+        if: ${{ github.event.inputs.release_tag != '' || startsWith(github.ref, 'refs/tags/ffmpeg-core-lgpl-') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.inputs.release_tag || github.ref_name }}
+        run: |
+          gh release create "$TAG" release/* \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --notes "LGPL-only FFmpeg n5.1.4 WebAssembly core (libmp3lame only) served by getmeaudio.com. See README.md for contents, licences and how to rebuild. Checksums in SHA256SUMS.txt."
