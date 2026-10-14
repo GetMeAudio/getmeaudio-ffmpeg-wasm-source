@@ -8,21 +8,22 @@ This is an **LGPL-only** build. It contains FFmpeg and the LAME MP3 encoder, and
 
 | Component | Version | Licence | Source |
 |---|---|---|---|
-| FFmpeg libraries (libavcodec, libavformat, libavfilter, libavutil, libswresample, libswscale, libpostproc, libavdevice) | n5.1.4 (commit `4729204c17f756e186d622060088371d10b34f7e`) | LGPL-2.1-or-later | https://github.com/FFmpeg/FFmpeg |
+| FFmpeg libraries (libavcodec, libavformat, libavfilter, libavutil, libswresample, libswscale, libavdevice; libpostproc is GPL-only and is not built) | n5.1.4 (commit `4729204c17f756e186d622060088371d10b34f7e`) | LGPL-2.1-or-later | https://github.com/FFmpeg/FFmpeg |
 | LAME MP3 encoder (ffmpegwasm fork) | commit `2badea1974ae36cb8312afe99cff1e6b3b5decee` | LGPL-2.0-or-later | https://github.com/ffmpegwasm/lame |
-| ffmpeg.wasm command-line glue (`src/fftools`, `src/bind`) | from ffmpeg.wasm v0.12.10 (commit `c3a763857c5e615ae8674715ad5e4f63ff469e9d`) | `src/fftools`: LGPL-2.1-or-later (FFmpeg); `src/bind`: MIT | https://github.com/ffmpegwasm/ffmpeg.wasm |
+| ffmpeg.wasm command-line glue (`src/fftools`, `src/bind`) | from ffmpeg.wasm commit `71aa99d37c02a7b4c435275ca9ef50e612f6efa1` (the release of `@ffmpeg/core` 0.12.10) | `src/fftools`: LGPL-2.1-or-later (FFmpeg); `src/bind`: MIT | https://github.com/ffmpegwasm/ffmpeg.wasm |
 | Emscripten toolchain | `emscripten/emsdk:3.1.40` (Docker image) | MIT / UIUC | https://github.com/emscripten-core/emsdk |
 
 FFmpeg is configured with `--disable-gpl --disable-nonfree --disable-network`, and only these encoders: `libmp3lame` and `pcm_*` (WAV). It is built single-threaded (no SharedArrayBuffer needed).
 
 This software uses libraries from the FFmpeg project (https://ffmpeg.org) under the LGPLv2.1. It is not endorsed by or affiliated with the FFmpeg project.
 
-## Differences from upstream ffmpeg.wasm v0.12.10
+## Differences from upstream ffmpeg.wasm (commit 71aa99d3, the `@ffmpeg/core` 0.12.10 release)
 
 - Removed `--enable-gpl` and every external library except LAME (x264, x265, libvpx, theora, vorbis, opus, ogg, zlib, libwebp, freetype, fribidi, harfbuzz, libass, zimg).
 - Added `--disable-gpl --disable-nonfree --disable-network --disable-encoders --enable-encoder=libmp3lame,pcm_*`.
+- Removed `-lpostproc` / `-Llibpostproc` from the link step in `build/ffmpeg-wasm.sh` (libpostproc is GPL-only and not built with `--disable-gpl`).
 - Pinned FFmpeg and LAME to exact commits.
-- `src/bind` and `src/fftools` are unchanged copies from upstream v0.12.10.
+- `src/bind` and `src/fftools` are unchanged copies from that upstream commit.
 
 See `Dockerfile` and `build/ffmpeg.sh` for the exact recipe.
 

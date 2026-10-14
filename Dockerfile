@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile-upstream:master-labs
 #
-# LGPL-only FFmpeg WebAssembly core for GetMeAudio. Derived from the ffmpeg.wasm v0.12.10 Dockerfile
-# (https://github.com/ffmpegwasm/ffmpeg.wasm/blob/v0.12.10/Dockerfile, MIT). Differences: x264, x265, libvpx, theora,
+# LGPL-only FFmpeg WebAssembly core for GetMeAudio. Derived from the Dockerfile of ffmpeg.wasm commit 71aa99d3 (the release of @ffmpeg/core 0.12.10)
+# (https://github.com/ffmpegwasm/ffmpeg.wasm/blob/71aa99d37c02a7b4c435275ca9ef50e612f6efa1/Dockerfile, MIT). Differences: x264, x265, libvpx, theora,
 # vorbis, opus, ogg, zlib, libwebp, freetype, fribidi, harfbuzz, libass and zimg are NOT built; FFmpeg is configured
 # without --enable-gpl and only libmp3lame (LGPL) is linked; every input is pinned to an exact commit.
 #
