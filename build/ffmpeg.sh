@@ -1,5 +1,5 @@
 #!/bin/bash
-# Configures and builds FFmpeg (libraries only) for WebAssembly. Based on ffmpeg.wasm v0.12.10 build/ffmpeg.sh.
+# Configures and builds FFmpeg (libraries only) for WebAssembly. Based on build/ffmpeg.sh at ffmpeg.wasm commit 71aa99d3 (release of @ffmpeg/core 0.12.10).
 # Extra flags (e.g. --enable-libmp3lame) are passed in by the Dockerfile.
 
 set -euo pipefail

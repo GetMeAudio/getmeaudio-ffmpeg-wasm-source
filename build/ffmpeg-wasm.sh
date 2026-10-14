@@ -17,7 +17,6 @@ CONF_FLAGS=(
   -Llibavfilter 
   -Llibavformat 
   -Llibavutil 
-  -Llibpostproc 
   -Llibswresample 
   -Llibswscale 
   -lavcodec 
@@ -25,11 +24,11 @@ CONF_FLAGS=(
   -lavfilter 
   -lavformat 
   -lavutil 
-  -lpostproc 
   -lswresample 
   -lswscale 
   -Wno-deprecated-declarations 
   $LDFLAGS 
+  -sENVIRONMENT=worker
   -sWASM_BIGINT                            # enable big int support
   -sUSE_SDL=2                              # use emscripten SDL2 lib port
   -sMODULARIZE                             # modularized to use as a library
@@ -49,6 +48,7 @@ CONF_FLAGS=(
   src/fftools/ffmpeg_mux.c 
   src/fftools/ffmpeg_opt.c 
   src/fftools/opt_common.c 
+  src/fftools/ffprobe.c 
 )
 
 emcc "${CONF_FLAGS[@]}" $@
