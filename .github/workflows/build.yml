@@ -33,8 +33,8 @@ jobs:
 
       - name: Verify LGPL-only
         run: |
-          ./scripts/verify-lgpl.sh out/dist/esm/ffmpeg-core.wasm
-          ./scripts/verify-lgpl.sh out/dist/umd/ffmpeg-core.wasm
+          bash scripts/verify-lgpl.sh out/dist/esm/ffmpeg-core.wasm
+          bash scripts/verify-lgpl.sh out/dist/umd/ffmpeg-core.wasm
 
       - name: Collect corresponding source and checksums
         run: |
